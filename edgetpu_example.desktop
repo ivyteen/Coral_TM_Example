@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=pi
+Exec=/usr/bin/python3 /home/pi/edgetpu_example/teachable.py
