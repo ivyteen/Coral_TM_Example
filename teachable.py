@@ -1,12 +1,12 @@
 from edgetpu.classification.engine import ClassificationEngine
 from PIL import Image
+
+from gpio_led import LED
+
 import cv2
 import re
 import os
-import time
-
-import RPi.GPIO as rpigpio
-LED_pins = [20, 13, 12, 25, 22]
+#import time
 
 # the TFLite converted to be used with edgetpu
 #modelPath = './model_edgetpu.tflite'
@@ -39,28 +39,6 @@ def searchModelFile(path):
 
     return res
 
-
-def initLED():
-    #Init for RPi GPIO for LED
-    rpigpio.setmode(rpigpio.BCM)
-
-    for pin in LED_pins:
-        rpigpio.setwarnings(False)
-        rpigpio.setup(pin, rpigpio.OUT)
-
-def setLED(index, state):
-    return rpigpio.output(LED_pins[index], rpigpio.LOW if state else rpigpio.HIGH)
-
-def setOnlyLED(index):
-    for i in range(len(LED_pins)): setLED(i, False)
-    if index is not None: setLED(index, True)
-
-def wiggleLEDs(reps=3):
-    for i in range(reps):
-        for i in range(5):
-            setLED(i,True)
-            time.sleep(0.05)
-            setLED(i, False)
 
 
 # This function parses the labels.txt and puts it in a python dictionary
@@ -111,8 +89,9 @@ def main():
         print("No Model File Exception")
         return
 
-    initLED()
-    wiggleLEDs(4)
+    ledCont=LED()
+    #initLED()
+    ledCont.wiggleLEDs(4)
 
     cap = cv2.VideoCapture(0)
     while cap.isOpened():
@@ -130,7 +109,7 @@ def main():
 
         # Classify and display image
         results = classifyImage(pil_im, engine)
-        setOnlyLED(results)
+        ledCont.setOnlyLED(results)
 
         cv2.imshow('frame', cv2_im)
         if cv2.waitKey(1) & 0xFF == ord('q'):
