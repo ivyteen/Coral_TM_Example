@@ -7,7 +7,8 @@ LS_CMD="ls /dev/sd[a-g][1-9]"
 XVFB_ARGS="-screen 0 1024x768x24 +extension GLX +render -noreset"
 #CODE_PATH="/home/pi/edgetpu_example/teachable2.py"
 MODEL_FILE_PATH="/media/pi/model_edgetpu.tflite"
-RUN="/home/pi/Coral_TM_Example/teachable.py"
+LABEL_FILE_PATH="/media/pi/labels.txt"
+RUN="/home/pi/Coral_TM_Example/image_classifier.py"
 ERROR_IND="/home/pi/Coral_TM_Example/error_indicator.py"
 
 function usbDiskMount() {
@@ -40,14 +41,17 @@ function usbDiskMount() {
 
 	#Check if the model file is in the disk
 		
-	if [ $retval -eq 0 -a ! -e $MODEL_FILE_PATH ]; then
-		retval=3
+	if [ $retval -eq 0 ]; then
+		if [ ! -e $MODEL_FILE_PATH ] || [ ! -e $LABEL_FILE_PATH ]; then
+			retval=3
+		fi
 	fi
 
 	echo $retval
 }
 
 retval=$(usbDiskMount)
+
 
 if [ $retval -eq 0 ]; then
 	if pgrep Xvfb; then
